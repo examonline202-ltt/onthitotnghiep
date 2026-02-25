@@ -1,0 +1,214 @@
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Quiz Master AI</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Fira+Code:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- PrismJS Theme for Code Highlighting -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet" />
+    <style>
+      body, button, input, textarea, select {
+        font-family: 'Be Vietnam Pro', sans-serif !important;
+      }
+
+      html {
+        scroll-behavior: smooth;
+      }
+
+      body {
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+        background-color: #f8fafc;
+        overflow-x: hidden;
+      }
+
+      /* Custom scrollbar */
+      ::-webkit-scrollbar {
+        width: 8px;
+        height: 8px;
+      }
+
+      ::-webkit-scrollbar-track {
+        background: #f1f1f1;
+      }
+
+      ::-webkit-scrollbar-thumb {
+        background: #cbd5e1;
+        border-radius: 10px;
+      }
+
+      ::-webkit-scrollbar-thumb:hover {
+        background: #94a3b8;
+      }
+
+      .animate-fade-in {
+        animation: fadeIn 0.3s ease-out forwards;
+      }
+
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: scale(0.95);
+        }
+        to {
+          opacity: 1;
+          transform: scale(1);
+        }
+      }
+      
+      .font-poppins {
+        font-family: 'Be Vietnam Pro', sans-serif !important;
+      }
+
+      /* PrismJS custom overrides for IDE look */
+      pre[class*="language-"] {
+        margin: 0 !important;
+        background: transparent !important;
+        padding: 0 !important;
+      }
+      code[class*="language-"] {
+        text-shadow: none !important;
+        font-family: 'Fira Code', 'Consolas', monospace !important;
+        line-height: 1.6 !important;
+        font-size: 15px !important;
+        font-weight: 400 !important; /* Đảm bảo nét thanh mảnh */
+      }
+      
+      /* --- CUSTOM VIBRANT THEMES (SLIM WEIGHT) --- */
+      
+      /* Chung cho các ngôn ngữ: Giữ font-weight thanh mảnh */
+      .token { font-weight: 400 !important; }
+
+      /* Python */
+      .language-python .token.keyword { color: #ff3e60 !important; }
+      .language-python .token.string { color: #f9c859 !important; }
+      .language-python .token.function { color: #4fc3f7 !important; }
+      .language-python .token.builtin { color: #4fc3f7 !important; }
+      .language-python .token.number { color: #bb86fc !important; }
+      .language-python .token.operator { color: #ff3e60 !important; }
+      .language-python .token.class-name { color: #a6e22e !important; }
+
+      /* HTML (Markup) */
+      .language-markup .token.tag { color: #ff3e60 !important; }
+      .language-markup .token.attr-name { color: #a6e22e !important; }
+      .language-markup .token.attr-value { color: #f9c859 !important; }
+      .language-markup .token.punctuation { color: #7f8c8d !important; }
+      .language-markup .token.comment { color: #6a737d !important; }
+
+      /* CSS */
+      .language-css .token.selector { color: #a6e22e !important; }
+      .language-css .token.property { color: #4fc3f7 !important; }
+      .language-css .token.function { color: #a6e22e !important; }
+      .language-css .token.string { color: #f9c859 !important; }
+      .language-css .token.number { color: #bb86fc !important; }
+      .language-css .token.punctuation { color: #f8f8f2 !important; }
+
+      /* SQL */
+      .language-sql .token.keyword { color: #ff3e60 !important; }
+      .language-sql .token.function { color: #4fc3f7 !important; }
+      .language-sql .token.string { color: #f9c859 !important; }
+      .language-sql .token.number { color: #bb86fc !important; }
+      .language-sql .token.operator { color: #ff3e60 !important; }
+      .language-sql .token.punctuation { color: #7f8c8d !important; }
+
+      /* C++ & C */
+      .language-cpp .token.keyword, .language-c .token.keyword { color: #ff3e60 !important; }
+      .language-cpp .token.function, .language-c .token.function { color: #a6e22e !important; }
+      .language-cpp .token.string, .language-c .token.string { color: #f9c859 !important; }
+      .language-cpp .token.number, .language-c .token.number { color: #bb86fc !important; }
+      
+      /* --- JUSTIFICATION FOR QUIZ CONTENT --- */
+      .quiz-question-container, 
+      .quiz-option-container {
+        text-align: justify !important;
+        text-justify: inter-word;
+      }
+
+      /* Markdown content fixes */
+      .math-renderer-content pre {
+        white-space: pre-wrap;
+        word-break: normal;
+        overflow-wrap: anywhere;
+      }
+
+      /* IDE Dots & Styles */
+      .ide-dots {
+        display: flex;
+        gap: 6px;
+        padding: 12px 16px;
+      }
+      .ide-dot {
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+      }
+      .dot-red { background: #ff5f56; }
+      .dot-yellow { background: #ffbd2e; }
+      .dot-green { background: #27c93f; }
+
+      /* Hiệu ứng Live cho chữ Live đóng khung đỏ */
+      @keyframes live-blink {
+        0% { opacity: 1; border-color: rgba(239, 68, 68, 1); box-shadow: 0 0 5px rgba(239, 68, 68, 0.5); }
+        50% { opacity: 0.6; border-color: rgba(239, 68, 68, 0.4); box-shadow: 0 0 0px rgba(239, 68, 68, 0); }
+        100% { opacity: 1; border-color: rgba(239, 68, 68, 1); box-shadow: 0 0 5px rgba(239, 68, 68, 0.5); }
+      }
+      .live-badge-red {
+        border: 1.5px solid #ef4444;
+        color: #ef4444;
+        padding: 2px 10px;
+        border-radius: 8px;
+        font-size: 11px;
+        font-weight: 900;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        animation: live-blink 1.5s infinite;
+        background: white;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+      }
+      .live-dot-red {
+        width: 6px;
+        height: 6px;
+        background: #ef4444;
+        border-radius: 50%;
+      }
+    </style>
+  <script type="importmap">
+{
+  "imports": {
+    "react": "https://aistudiocdn.com/react@^19.2.0",
+    "react-dom/": "https://aistudiocdn.com/react-dom@^19.2.0/",
+    "react/": "https://aistudiocdn.com/react@^19.2.0/",
+    "lucide-react": "https://aistudiocdn.com/lucide-react@^0.554.0",
+    "@google/genai": "https://aistudiocdn.com/@google/genai@^1.30.0",
+    "@supabase/supabase-js": "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.1/+esm",
+    "path": "https://aistudiocdn.com/path@^0.12.7",
+    "@vitejs/plugin-react": "https://aistudiocdn.com/@vitejs/plugin-react@^5.1.1",
+    "vite": "https://aistudiocdn.com/vite@^7.2.4"
+  }
+}
+</script>
+<!-- PrismJS Scripts -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-clike.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-sql.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-c.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-cpp.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-css.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-markup.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-javascript.min.js"></script>
+<link rel="stylesheet" href="/index.css">
+</head>
+  <body>
+    <div id="root"></div>
+  <script type="module" src="/index.tsx"></script>
+</body>
+</html>
+    
