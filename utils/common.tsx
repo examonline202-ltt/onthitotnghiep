@@ -1,6 +1,10 @@
 
 import React from 'react';
 import { Question, StudentResult, ExamConfig, Student } from '../types';
+import Markdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
+import remarkBreaks from 'remark-breaks';
+import rehypeRaw from 'rehype-raw';
 
 // --- CSS Animations cho UI Động ---
 const EXTRA_STYLES = `
@@ -175,102 +179,37 @@ export const MathRenderer: React.FC<{ text: string, allowMarkdown?: boolean }> =
   if (typeof text !== 'string') return null;
   if (!allowMarkdown) return <span ref={containerRef}>{text}</span>;
 
-  // Helper xử lý Bold, Italic, Inline Code trong dòng
-  const processInlineStyles = (str: string) => {
-      // Split by inline code first
-      const parts = str.split(/(`[^`\n]+`)/g);
-      return parts.map((part, pIdx) => {
-          if (part.startsWith('`') && part.endsWith('`')) {
-              return <code key={pIdx} className="inline-code">{part.slice(1, -1)}</code>;
-          }
-          
-          // Then process bold
-          const boldParts = part.split(/(\*\*[^\*]+\*\*)/g);
-          return boldParts.map((bp, bIdx) => {
-              if (bp.startsWith('**') && bp.endsWith('**')) {
-                  return <strong key={`${pIdx}-${bIdx}`} className="font-bold text-inherit">{bp.slice(2, -2)}</strong>;
-              }
-              // Then process italic
-              const italicParts = bp.split(/(\*[^\*]+\*)/g);
-              return italicParts.map((ip, iIdx) => {
-                  if (ip.startsWith('*') && ip.endsWith('*') && ip.length > 2) {
-                      return <em key={`${pIdx}-${bIdx}-${iIdx}`} className="italic text-inherit">{ip.slice(1, -1)}</em>;
-                  }
-                  return ip;
-              });
-          });
-      });
-  };
-
-  // Split by Code Blocks only
-  const blockParts = text.split(/(```[\s\S]*?```)/g);
-
   return (
-     <span ref={containerRef} className="block w-full">
-        {blockParts.map((part, i) => {
-            // Xử lý Code Block (``` ... ```)
-            if (part.startsWith('```') && part.endsWith('```')) {
-                const raw = part.slice(3, -3);
-                const firstLineIdx = raw.indexOf('\n');
-                
-                let lang = '';
-                let code = raw;
-
-                if (firstLineIdx > -1) {
-                    const potentialLang = raw.substring(0, firstLineIdx).trim().toLowerCase();
-                    const validLangs = ['python', 'py', 'sql', 'cpp', 'c++', 'c', 'js', 'javascript', 'ts', 'html', 'css', 'java', 'xml'];
-                    
-                    if (validLangs.includes(potentialLang)) {
-                        lang = potentialLang;
-                        code = raw.substring(firstLineIdx + 1);
-                    } else {
-                        code = raw;
-                    }
+     <span ref={containerRef} className="block w-full markdown-body">
+        <Markdown 
+            remarkPlugins={[remarkGfm, remarkBreaks]}
+            rehypePlugins={[rehypeRaw]}
+            components={{
+                h1: ({node, ...props}) => <h1 className="text-lg font-black text-indigo-900 mt-4 mb-2" {...props} />,
+                h2: ({node, ...props}) => <h2 className="text-base font-bold text-indigo-800 mt-3 mb-1" {...props} />,
+                h3: ({node, ...props}) => <h3 className="text-sm font-bold text-indigo-700 mt-2 mb-1" {...props} />,
+                ul: ({node, ...props}) => <ul className="list-disc ml-6 mb-2 text-slate-700" {...props} />,
+                ol: ({node, ...props}) => <ol className="list-decimal ml-6 mb-2 text-slate-700" {...props} />,
+                li: ({node, ...props}) => <li className="mb-1" {...props} />,
+                table: ({node, ...props}) => <div className="overflow-x-auto my-4"><table className="w-full border-collapse border-2 border-slate-300" {...props} /></div>,
+                th: ({node, ...props}) => <th className="border-2 border-slate-300 bg-slate-100 px-4 py-2 text-left font-bold text-slate-800" {...props} />,
+                td: ({node, ...props}) => <td className="border-2 border-slate-300 px-4 py-2 text-slate-700" {...props} />,
+                p: ({node, ...props}) => <p className="min-h-[1.5em] mb-2" {...props} />,
+                code(props) {
+                    const {children, className, node, ...rest} = props
+                    const match = /language-(\w+)/.exec(className || '')
+                    return match ? (
+                        <CodeBlock code={String(children).replace(/\n$/, '')} language={match[1]} />
+                    ) : (
+                        <code {...rest} className="inline-code">
+                            {children}
+                        </code>
+                    )
                 }
-
-                if (!lang) lang = 'python'; // Default
-
-                return <CodeBlock key={i} code={code} language={lang} />;
-            }
-            
-            // Xử lý văn bản thường và Markdown cơ bản (Headers, Lists, Bold, Italic, Inline Code)
-            return part.split('\n').map((line, idx) => {
-                const trimmed = line.trim();
-                const key = `${i}-${idx}`;
-
-                // Headers
-                if (trimmed.startsWith('### ')) return <h3 key={key} className="text-sm font-bold text-indigo-700 mt-2 mb-1">{processInlineStyles(trimmed.substring(4))}</h3>;
-                if (trimmed.startsWith('## ')) return <h2 key={key} className="text-base font-bold text-indigo-800 mt-3 mb-1">{processInlineStyles(trimmed.substring(3))}</h2>;
-                if (trimmed.startsWith('# ')) return <h1 key={key} className="text-lg font-black text-indigo-900 mt-4 mb-2">{processInlineStyles(trimmed.substring(2))}</h1>;
-
-                // Lists (* or -)
-                if (/^[\*\-]\s/.test(trimmed)) {
-                    return (
-                        <div key={key} className="flex gap-2 ml-4 mb-1">
-                            <span className="text-indigo-500 font-bold">•</span>
-                            <span>{processInlineStyles(trimmed.substring(2))}</span>
-                        </div>
-                    );
-                }
-
-                // Numbered Lists (1.)
-                const numMatch = trimmed.match(/^(\d+\.)\s(.*)/);
-                if (numMatch) {
-                    return (
-                        <div key={key} className="flex gap-2 ml-4 mb-1">
-                            <span className="text-indigo-600 font-bold">{numMatch[1]}</span>
-                            <span>{processInlineStyles(numMatch[2])}</span>
-                        </div>
-                    );
-                }
-
-                // Dòng trống
-                if (!trimmed) return <div key={key} className="h-1"></div>;
-
-                // Văn bản thường
-                return <div key={key} className="min-h-[1.5em]">{processInlineStyles(line)}</div>;
-            });
-        })}
+            }}
+        >
+            {text}
+        </Markdown>
      </span>
   );
 });

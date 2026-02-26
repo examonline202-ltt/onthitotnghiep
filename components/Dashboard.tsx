@@ -504,7 +504,7 @@ export const DashboardLayout = ({
          <div className="p-6 border-b border-white/20 flex items-center justify-between gap-2">
             <div className="flex items-center gap-2">
               <div className="w-10 h-10 bg-white/20 backdrop-blur-sm rounded-xl flex items-center justify-center border border-white/30"><GraduationCap className="w-6 h-6 text-white"/></div>
-              <div><h1 className="text-sm font-black text-white uppercase">EXAM ONLINE</h1><p className="text-[10px] text-teal-100 font-bold opacity-80 uppercase tracking-widest">LTT EDU</p></div>
+              <div><h1 className="text-sm font-black text-white uppercase">Quiz Master ONLINE</h1><p className="text-[10px] text-teal-100 font-bold opacity-80 uppercase tracking-widest">LTT EDU</p></div>
             </div>
             {/* Close button for mobile */}
             <button className="lg:hidden p-1 hover:bg-white/10 rounded-lg" onClick={() => setIsSidebarOpen(false)}>
@@ -1341,15 +1341,27 @@ export const ExamEditor = ({ exam, onUpdate, onBack, onPublish, initialShowImpor
                                         </div>
                                         <div className="text-slate-800 font-medium mb-4 quiz-question-container">
                                             <MathRenderer text={q.question} allowMarkdown={true} />
+                                            {q.image && (
+                                                <div className="mt-4">
+                                                    <img src={q.image} alt="Question" className="max-h-64 rounded-lg border border-gray-200 shadow-sm object-contain" />
+                                                </div>
+                                            )}
                                         </div>
                                         {q.type === 'choice' && (
                                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                                 {q.options?.map((opt, i) => {
                                                     const isSelected = opt === q.answer;
                                                     return (
-                                                        <div key={i} className={`flex items-center p-3 rounded-xl border ${isSelected ? 'border-2 border-teal-600 bg-teal-50' : 'border-gray-200 bg-white'}`}>
-                                                            <span className={`font-bold mr-3 ${isSelected ? 'text-teal-600' : 'text-gray-400'}`}>{String.fromCharCode(65+i)}.</span>
-                                                            <span className={isSelected ? 'text-teal-800' : 'text-slate-700'}><MathRenderer text={opt} allowMarkdown={true}/></span>
+                                                        <div key={i} className={`flex flex-col p-3 rounded-xl border ${isSelected ? 'border-2 border-teal-600 bg-teal-50' : 'border-gray-200 bg-white'}`}>
+                                                            <div className="flex items-center">
+                                                                <span className={`font-bold mr-3 ${isSelected ? 'text-teal-600' : 'text-gray-400'}`}>{String.fromCharCode(65+i)}.</span>
+                                                                <span className={isSelected ? 'text-teal-800' : 'text-slate-700'}><MathRenderer text={opt} allowMarkdown={true}/></span>
+                                                            </div>
+                                                            {q.optionImages && q.optionImages[i] && (
+                                                                <div className="mt-3 ml-7">
+                                                                    <img src={q.optionImages[i]} alt={`Option ${String.fromCharCode(65+i)}`} className="max-h-32 rounded border border-gray-200 object-contain" />
+                                                                </div>
+                                                            )}
                                                         </div>
                                                     );
                                                 })}
@@ -1358,10 +1370,17 @@ export const ExamEditor = ({ exam, onUpdate, onBack, onPublish, initialShowImpor
                                         {q.type === 'group' && (
                                             <div className="space-y-2 mt-2">
                                                 {q.subQuestions?.map((sub, i) => (
-                                                    <div key={i} className="text-sm flex items-start gap-3 p-3 rounded-xl border border-gray-200 bg-white">
-                                                        <span className="font-bold text-gray-400">{String.fromCharCode(97+i)})</span>
-                                                        <span className="flex-1 text-slate-700"><MathRenderer text={sub.content} allowMarkdown={true}/></span>
-                                                        <span className={`text-xs font-black px-3 py-1 rounded-lg ${sub.correctAnswer ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>{sub.correctAnswer ? 'ĐÚNG' : 'SAI'}</span>
+                                                    <div key={i} className="text-sm flex flex-col gap-2 p-3 rounded-xl border border-gray-200 bg-white">
+                                                        <div className="flex items-start gap-3">
+                                                            <span className="font-bold text-gray-400">{String.fromCharCode(97+i)})</span>
+                                                            <span className="flex-1 text-slate-700"><MathRenderer text={sub.content} allowMarkdown={true}/></span>
+                                                            <span className={`text-xs font-black px-3 py-1 rounded-lg ${sub.correctAnswer ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>{sub.correctAnswer ? 'ĐÚNG' : 'SAI'}</span>
+                                                        </div>
+                                                        {sub.image && (
+                                                            <div className="mt-2 ml-7">
+                                                                <img src={sub.image} alt={`Subquestion ${String.fromCharCode(97+i)}`} className="max-h-32 rounded border border-gray-200 object-contain" />
+                                                            </div>
+                                                        )}
                                                     </div>
                                                 ))}
                                             </div>
